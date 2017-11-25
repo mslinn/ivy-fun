@@ -1,7 +1,7 @@
-# Scala Project Template
+# Fun With Apache Ivy and Scala
 
-[![Build Status](https://travis-ci.org/mslinn/sbtTemplate.svg?branch=master)](https://travis-ci.org/mslinn/sbtTemplate)
-[![GitHub version](https://badge.fury.io/gh/mslinn%2FsbtTemplate.svg)](https://badge.fury.io/gh/mslinn%2FsbtTemplate)
+[![Build Status](https://travis-ci.org/mslinn/ivy-fun.svg?branch=master)](https://travis-ci.org/mslinn/ivy-fun)
+[![GitHub version](https://badge.fury.io/gh/mslinn%2Fivy-fun.svg)](https://badge.fury.io/gh/mslinn%2Fivy-fun)
 
 ## Running the Program
 The `bin/run` Bash script assembles this project into a fat jar and runs it.
