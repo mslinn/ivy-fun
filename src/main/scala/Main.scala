@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.report.ResolveReport
 import org.apache.ivy.core.resolve.ResolveOptions
+import org.apache.ivy.plugins.resolver.DependencyResolver
 import scala.collection.JavaConverters._
 
 class ClassFileHelper {
@@ -25,19 +26,42 @@ object Main extends App {
     .setConfs(confs)
 
   val ivy: Ivy = Ivy.newInstance()
+//  ivy.configureDefault() // not sure what this does
   val ivyHome: Path = Paths.get(sys.props.getOrElse("ivy.home", sys.props("user.home") + "/.ivy2"))
 
-  FileUtils.listFiles(ivyHome.toFile, Array("jar"), true).asScala.find { file =>
-    file.getName == "jackson-core-2.5.4.jar"
-  }.foreach { file =>
-    val url: URL = file.toURI.toURL
+  dumpIvy()
+  findDependency("jackson-core-2.5.4.jar")
 
-    // [Fatal Error] jackson-core-2.5.4.jar:1:1: Content is not allowed in prolog.
-    val resolveReport2: ResolveReport = ivy.getResolveEngine.resolve(url)
-    println(resolveReport2)
+  /** This is supposed to show all the modules in the Ivy cache. Unfortunately it does not do anything */
+  def dumpIvy(): Unit = {
+    ivy.listOrganisationEntries.foreach { orgEntry =>
+      println(s"orgEntry.getOrganisation = ${orgEntry.getOrganisation};")
 
-    // [Fatal Error] jackson-core-2.5.4.jar:1:1: Content is not allowed in prolog.
-    val resolveReport1: ResolveReport = ivy.resolve(url, resolveOptions)
-    println(resolveReport1)
+      val resolver: DependencyResolver = orgEntry.getResolver
+      println(resolver)
+
+      ivy.listModuleEntries(orgEntry).foreach { moduleEntry =>
+        println(s"moduleEntry.getModule =  ${moduleEntry.getModule}")
+        ivy.listModules(orgEntry.getOrganisation).foreach { module =>
+          println(s"module = $module")
+        }
+      }
+    }
+  }
+
+  def findDependency(jarFileName: String): Unit = {
+    FileUtils.listFiles(ivyHome.toFile, Array("jar"), true).asScala.find { file =>
+      file.getName == jarFileName
+    }.foreach { file =>
+      val url: URL = file.toURI.toURL
+
+      // [Fatal Error] jackson-core-2.5.4.jar:1:1: Content is not allowed in prolog.
+      val resolveReport2: ResolveReport = ivy.getResolveEngine.resolve(url)
+      println(resolveReport2)
+
+      // [Fatal Error] jackson-core-2.5.4.jar:1:1: Content is not allowed in prolog.
+      val resolveReport1: ResolveReport = ivy.resolve(url, resolveOptions)
+      println(resolveReport1)
+    }
   }
 }
