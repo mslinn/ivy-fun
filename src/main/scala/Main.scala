@@ -1,16 +1,17 @@
 import java.io.File
 import java.net.URL
 import java.nio.file.{Path, Paths}
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.FileUtils
 import org.apache.ivy.Ivy
-import org.apache.ivy.core.module.descriptor.{Artifact, DefaultDependencyDescriptor, DefaultModuleDescriptor, ModuleDescriptor}
+import org.apache.ivy.core.module.descriptor.{DefaultDependencyDescriptor, DefaultModuleDescriptor}
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.report.ResolveReport
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorWriter
 import org.apache.ivy.plugins.resolver.URLResolver
-import org.apache.ivy.util.{DefaultMessageLogger, Message, MessageLoggerEngine}
+import org.apache.ivy.util.MessageLoggerEngine
 
 object Main extends App {
   val test = new Test2
@@ -71,20 +72,21 @@ class Test2 {
       .toList
       .map(_.asInstanceOf[File])
 
-  val files: List[File] = for {
+  val fileUrls: List[(File, URL)] = for {
     xmlFile <- ivyXmlFiles
     resolveReport <- try { List(ivy.resolve(xmlFile)) } catch { case e: Exception => Nil }
     moduleDescriptor <- try { List(resolveReport.getModuleDescriptor) } catch { case e: Exception => Nil }
     artifact <- moduleDescriptor.getAllArtifacts.toList
+    url <- Option(artifact.getUrl).toList
   } yield {
     val name: String = artifact.getModuleRevisionId.getName
-    val url: URL = artifact.getUrl
 
     val revId: ModuleRevisionId = moduleDescriptor.getModuleRevisionId
     val groupId = revId.getOrganisation
     val artifactId = revId.getModuleId.getName
     val version = revId.getRevision
     val file: File = resolveArtifact(groupId, artifactId, version)
-    file
+    file -> url
   }
+  println(fileUrls.mkString("\n"))
 }

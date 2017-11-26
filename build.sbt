@@ -78,12 +78,13 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.apache.ivy"   %  "ivy"             % "2.4.0" withSources(),
-  "commons-io"       %  "commons-io"      % "2.6"   withSources(),
-  "ch.qos.logback"   %  "logback-classic" % "1.2.3",
+  "org.apache.ivy"             %  "ivy"             % "2.4.0" withSources(),
+  "commons-io"                 %  "commons-io"      % "2.6"   withSources(),
+  "ch.qos.logback"             %  "logback-classic" % "1.2.3",
+  "com.typesafe.scala-logging" %% "scala-logging"   % "3.7.2",
   //
-  "org.scalatest"    %% "scalatest"       % "3.0.3" % Test withSources(),
-  "junit"            %  "junit"           % "4.12"  % Test
+  "org.scalatest"              %% "scalatest"       % "3.0.3" % Test withSources(),
+  "junit"                      %  "junit"           % "4.12"  % Test
 )
 
 logLevel := Level.Warn
