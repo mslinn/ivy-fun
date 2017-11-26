@@ -45,18 +45,18 @@ class ThirdTry {
   // Create a classloader and load the entry point class
   val urlClassLoader = new URLClassLoader(classLoaderUrls)
 
-  // Get the main class name (the entry point class)
-  val mainClassName: String = manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)
+  // Get the main class name (the entry point class), if it is defined
+  Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)).foreach { mainClassName: String =>
+    // Load the target class
+    val beanClass: Class[_] = urlClassLoader.loadClass(mainClassName)
 
-  // Load the target class
-  val beanClass: Class[_] = urlClassLoader.loadClass(mainClassName)
+    // Get the main method from the loaded class and invoke it
+    val method: Method = beanClass.getMethod("main", classOf[Array[String]])
 
-  // Get the main method from the loaded class and invoke it
-  val method: Method = beanClass.getMethod("main", classOf[Array[String]])
+    // init params accordingly
+    val params = Array.empty[String]
 
-  // init params accordingly
-  val params = Array.empty[String]
-
-  // static method doesn't have an instance
-  method.invoke(null, params)
+    // static method doesn't have an instance
+    method.invoke(null, params)
+  }
 }
