@@ -1,8 +1,29 @@
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{JarURLConnection, URL, URLClassLoader}
+import java.util
 import java.util.jar.{Attributes, JarFile, Manifest}
 import scala.collection.JavaConverters._
+
+class JarManifest2(path: String) {
+  val jarUrlString = s"jar:file:/$path!/"
+  val filePathString = s"file:/$path"
+
+  val fileSysUrl = new URL(jarUrlString)
+  val jarURLConnection: JarURLConnection = fileSysUrl.openConnection.asInstanceOf[JarURLConnection]
+  val jarFile: JarFile = jarURLConnection.getJarFile
+  val manifest: Manifest = jarFile.getManifest
+
+  val manifestAttributes: Map[AnyRef, AnyRef] =
+    manifest
+      .getMainAttributes
+      .entrySet
+      .asScala
+      .toSet
+      .toList
+      .map { x: util.Map.Entry[Object, Object] => x.getKey -> x.getValue }
+      .toMap
+}
 
 object ThirdTry {
   val path: String = s"${ sys.props("user.home") }/.sbt/boot/scala-2.12.4/lib/scala-library.jar".replace("/", File.separator)
@@ -15,10 +36,10 @@ class ThirdTry {
   import ThirdTry._
 
   // Create a URL that refers to a jar file in the file system
-  val FileSysUrl = new URL(JAR_URL)
+  val fileSysUrl = new URL(JAR_URL)
 
   // Create a jar URL connection object
-  val jarURLConnection: JarURLConnection = FileSysUrl.openConnection.asInstanceOf[JarURLConnection]
+  val jarURLConnection: JarURLConnection = fileSysUrl.openConnection.asInstanceOf[JarURLConnection]
 
   // Get the jar file
   val jarFile: JarFile = jarURLConnection.getJarFile
