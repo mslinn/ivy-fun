@@ -2,6 +2,9 @@ import java.io.File
 import java.net.URL
 import java.nio.file.{Path, Paths}
 import org.apache.ivy.Ivy
+import org.apache.ivy.core.module.descriptor.{DefaultModuleDescriptor, ModuleDescriptor}
+import org.apache.ivy.core.module.id.ModuleRevisionId
+import org.apache.ivy.core.resolve.ResolvedModuleRevision
 
 object Main extends App {
   val test = new Test
@@ -27,7 +30,7 @@ class Test {
 
   val pathStr: String = s"$ivyHome/cache/com.fasterxml.jackson.core/jackson-core/jars/jackson-core-2.5.4.jar".replace("/", File.separator)
 
-  val attributes: Map[String, AnyRef] = new JarManifest2(pathStr).manifestAttributes
+  val attributes: Map[String, AnyRef] = new JarManifest(pathStr).manifestAttributes
 
   val docUrl: String  = attribute("Bundle-DocURL").mkString
 
@@ -43,6 +46,17 @@ class Test {
 
   // is Specification-Version or Implementation-Version better?
   val version: String  = attribute("Bundle-Version").mkString
+
+  def withExtension(file: File, extension: String): File = {
+    val fileName = file.getName
+    val fn2 = if (fileName.contains("."))
+        fileName.substring(0, fileName.lastIndexOf('.'))
+    else fileName
+    new File(file.getParentFile, s"$fn2.$extension")
+  }
+
+//  val dependencyFile: File = withExtension(new File(pathStr), "xml")
+//  ivy.resolve(dependencyFile)
 
   println(s"groupId = $groupId")
   println(s"artifactId = $artifactId")

@@ -1,29 +1,8 @@
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{JarURLConnection, URL, URLClassLoader}
-import java.util
 import java.util.jar.{Attributes, JarFile, Manifest}
 import scala.collection.JavaConverters._
-
-class JarManifest2(path: String) {
-  val jarUrlString = s"jar:file:/$path!/"
-  val filePathString = s"file:/$path"
-
-  val fileSysUrl = new URL(jarUrlString)
-  val jarURLConnection: JarURLConnection = fileSysUrl.openConnection.asInstanceOf[JarURLConnection]
-  val jarFile: JarFile = jarURLConnection.getJarFile
-  val manifest: Manifest = jarFile.getManifest
-
-  val manifestAttributes: Map[String, AnyRef] =
-    manifest
-      .getMainAttributes
-      .entrySet
-      .asScala
-      .toSet
-      .toList
-      .map { x: util.Map.Entry[Object, Object] => x.getKey.asInstanceOf[Attributes.Name].toString -> x.getValue }
-      .toMap
-}
 
 object ThirdTry {
   val path: String = s"${ sys.props("user.home") }/.sbt/boot/scala-2.12.4/lib/scala-library.jar".replace("/", File.separator)
