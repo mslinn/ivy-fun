@@ -1,0 +1,3 @@
+<category name="ch.ivyteam.ivy.security" class="ch.ivyteam.log.Logger">
+  <priority value="ERROR"/>
+</category>

@@ -10,6 +10,7 @@ import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorWriter
 import org.apache.ivy.plugins.resolver.URLResolver
+import org.apache.ivy.util.{DefaultMessageLogger, Message, MessageLoggerEngine}
 
 object Main extends App {
   val test = new Test2
@@ -32,6 +33,11 @@ object Global {
     ivySettings.addResolver(resolver)
     ivySettings.setDefaultResolver(resolver.getName)
     val ivy: Ivy = Ivy.newInstance(ivySettings)
+
+    val logger: MessageLoggerEngine = ivy.getLoggerEngine
+//    while (Option(logger.peekLogger()).isDefined)
+//      logger.popLogger()
+//    logger.setDefaultLogger(new DefaultMessageLogger(Message.MSG_ERR))
 
     val ivyFile: File = File.createTempFile("ivy", ".xml")
     ivyFile.deleteOnExit()
