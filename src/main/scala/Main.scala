@@ -1,8 +1,16 @@
-import java.util.jar
+import java.io.File
+import java.net.URL
+import java.nio.file.{Path, Paths}
 import org.apache.ivy.Ivy
 
 object Main extends App {
   val test = new Test
+}
+
+object Test {
+  implicit val ivy: Ivy = Ivy.newInstance()
+
+  val ivyHome: Path = Paths.get(sys.props.getOrElse("ivy.home", sys.props("user.home") + "/.ivy2"))
 }
 
 /** Given a list of paths to jars of the form: /home/mslinn/.sbt/boot/scala-2.12.4/lib/scala-library.jar,
@@ -11,12 +19,53 @@ object Main extends App {
   * For example:
   *   /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar#http://docs.oracle.com/javase/8/docs/api/
   *
-  * A list of these tuples will be used as a value for Scaladoc's -doc-external-doc command line option */
+  * A list of these tuples will be used as a value for Scaladoc's -doc-external-doc command line option
+  *
+  * @see See [[https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#Main_Attributes Main Attributes]] */
 class Test {
-  implicit val ivy: Ivy = Ivy.newInstance()
+  import Test._
 
-  new ThirdTry
+  val pathStr: String = s"$ivyHome/cache/com.fasterxml.jackson.core/jackson-core/jars/jackson-core-2.5.4.jar".replace("/", File.separator)
 
-//  val x: jar.Manifest = JarManifest.manifest
-//  println(x)
+  val attributes: Map[String, AnyRef] = new JarManifest2(pathStr).manifestAttributes
+
+  val docUrl: String  = attribute("Bundle-DocURL").mkString
+
+  /** The value is a string id that uniquely defines the organization that maintains the  extension implementation.
+    * @deprecated("This attribute may be ignored in a future release", "java 8?") */
+  val groupId: String  = attribute("Implementation-Vendor-Id").mkString
+
+  val artifactId: String  = attribute("Bundle-SymbolicName").mkString.substring(groupId.length+1)
+
+  /** This attribute specifies a URL that can be used to obtain the most recent version of the extension if the required version is not already installed.
+    * @deprecated("This attribute may be ignored in a future release", "java 8?") */
+  val url: URL  = new URL(attribute("Implementation-URL").getOrElse("http://empty"))
+
+  // is Specification-Version or Implementation-Version better?
+  val version: String  = attribute("Bundle-Version").mkString
+
+  println(s"groupId = $groupId")
+  println(s"artifactId = $artifactId")
+  println(s"version = $version")
+  println(s"docUrl = $docUrl")
+
+  def attribute[T](name: String): Option[T] = attributes.collectFirst {
+    case (key, value) if key == name => value.asInstanceOf[T]
+  }
+
+  def dumpAttributes(): Unit =
+    attributes.foreach {
+      /** This attribute can be used to identify the vendor of an extension implementation if the applet requires an
+        * implementation from a specific vendor. The Java Plug-in will compare the value of this attribute with the
+        * Implementation-Vendor-Id attribute of the installed extension. */
+      case (key, value) if key == "Implementation-Vendor-Id" =>
+        println(s"  $key -> ${ value.asInstanceOf[String] }")
+
+      case (key, value) if key == "Export-Package" =>
+        val values: Array[String] = value.asInstanceOf[String].split(";")
+        println(s"  $key -> ${ values.mkString("\n  ") }")
+
+      case (key, value) =>
+        println(s"$key -> $value")
+    }
 }

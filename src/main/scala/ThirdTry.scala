@@ -14,14 +14,14 @@ class JarManifest2(path: String) {
   val jarFile: JarFile = jarURLConnection.getJarFile
   val manifest: Manifest = jarFile.getManifest
 
-  val manifestAttributes: Map[AnyRef, AnyRef] =
+  val manifestAttributes: Map[String, AnyRef] =
     manifest
       .getMainAttributes
       .entrySet
       .asScala
       .toSet
       .toList
-      .map { x: util.Map.Entry[Object, Object] => x.getKey -> x.getValue }
+      .map { x: util.Map.Entry[Object, Object] => x.getKey.asInstanceOf[Attributes.Name].toString -> x.getValue }
       .toMap
 }
 

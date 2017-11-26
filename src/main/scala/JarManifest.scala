@@ -1,18 +1,8 @@
 import java.io.{File, InputStream}
-import java.net.{JarURLConnection, URL}
-import java.nio.file.Path
 import java.util.jar
 import org.apache.commons.io.FileUtils
 
 object JarManifest {
- /* def getManifest(url: URL): jar.Manifest = {
-    url.openConnection.getManifest
-  }
-
-  def getManifest(file: File): jar.Manifest = getManifest(file.toURI.toURL)
-
-  def getManifest(path: Path): jar.Manifest = getManifest(path.toFile.toURI.toURL)
-*/
   def getManifest(string: String): jar.Manifest = {
     val file = new File(string)
     assert(file.exists)
